@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Chatbot</title>
+</head>
+<body>
+    <h1>Chatbot</h1>
+
+    <div id="chat-container">
+
+    </div>
+
+    <form id="question-form">
+        <label for="question">Ask a question:</label>
+        <input type="text" id="question" name="question">
+        <input type="submit" value="Ask">
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var chatContainer = document.getElementById('chat-container');
+            var questionForm = document.getElementById('question-form');
+
+            questionForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                var questionInput = document.getElementById('question');
+                var question = questionInput.value;
+
+                //send question to flask
+                fetch('/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({'question': question})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    chatContainer.innerHTML += `<p><strong>You</strong> ${question}</p>`;
+                    chatContainer.innerHTML += `<p><strong>Chatbot:</strong> ${data.answer}</p>`;
+
+                    questioninput.value = ``;
+                })
+            })
+        })
+    </script>
+</body>
+</html>
