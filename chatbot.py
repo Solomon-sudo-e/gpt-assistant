@@ -45,6 +45,19 @@ def get_answer(question):
 
     run = wait_on_run(run, thread) 
     messages = client.beta.threads.messages.list(thread_id=thread.id)
-    return str(messages)
+
+    assistant_message = next((msg for msg in messages.data if msg.role == 'assistant'), None)
+    
+    if assistant_message:
+        answer = assistant_message.content[0].text.value
+        return answer
+    else:
+        return "no message found"
+        
+
+    
+    
+    
+    
 
 

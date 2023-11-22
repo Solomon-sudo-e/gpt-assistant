@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<link rel="stylesheet" href="style.css">
 <head>
     <title>Chatbot</title>
 </head>
@@ -15,19 +16,24 @@
         <input type="text" id="question" name="question">
         <input type="submit" value="Ask">
     </form>
+    <input type="checkbox" id="ttsCheckbox" name="tts" value="tts">
+    <label for="tts">Enable Text-To-Speech</label>
+    <audio id="audioPlayer" controls></audio>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var chatContainer = document.getElementById('chat-container');
             var questionForm = document.getElementById('question-form');
-
+            var ttsCheckbox = document.getElementById('ttsCheckbox');
+            var audioPlayer = document.getElementById('audioPlayer');
+    
+            // Handle the form submit
             questionForm.addEventListener('submit', function(event) {
                 event.preventDefault();
-
                 var questionInput = document.getElementById('question');
                 var question = questionInput.value;
-
-                //send question to flask
+    
+                // Send question to flask
                 fetch('/', {
                     method: 'POST',
                     headers: {
@@ -37,13 +43,27 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    chatContainer.innerHTML += `<p><strong>You</strong> ${question}</p>`;
+                    chatContainer.innerHTML += `<p><strong>You:</strong> ${question}</p>`;
                     chatContainer.innerHTML += `<p><strong>Chatbot:</strong> ${data.answer}</p>`;
-
-                    questioninput.value = ``;
-                })
-            })
-        })
+    
+                    // If text-to-speech is enabled, get and play the audio
+                    if (ttsCheckbox.checked) {
+                        fetch(`/audio?question=${encodeURIComponent(question)}`)
+                            .then(response => response.blob())
+                            .then(blob => {
+                                const url = URL.createObjectURL(blob);
+                                audioPlayer.src = url;
+                                audioPlayer.play();
+                            })
+                            .catch(error => console.error('Error fetching audio: ', error));
+                    }
+    
+                    // Clear the question input
+                    questionInput.value = '';
+                });
+            });
+    
+        });
     </script>
 </body>
 </html>
